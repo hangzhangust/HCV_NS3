@@ -1,0 +1,24 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Epistatic interactions promote resistance against
+  direct-acting antivirals targeting the HCV NS3 protein
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - family-names: Zhang
+    given-names: Hang
+  - family-names: Quadeer
+    given-names: Ahmed
+    name-particle: A.
+  - given-names: Matthew
+    name-particle: R.
+    family-names: McKay
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.8398088
+repository-code: 'https://github.com/hangzhangust/HCV_NS3'
