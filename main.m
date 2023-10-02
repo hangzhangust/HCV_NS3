@@ -10,7 +10,7 @@ clear;
 close all;
 clc;
 
-addpath data
+addpath(genpath("data"));
 addpath functions
 addpath 3rd_party_code
 addpath figures_scripts
@@ -44,7 +44,15 @@ clear;
 clc;
 run figure1.m
 
-%% Fig. 2 Identification of SC-DRMs and their significance.
+%% Fig. 2 SC-DRMs are enriched in NS3 drugs.
+% (a) list of NS3 drugs and the associated DRMs. check data/Drugs_mutants.mat
+% (b) statistical significance of the number of SC-DRMs associated with each drug.
+clear;
+clc;
+run figure2.m
+
+
+%% Fig. 3 Identification of SC-DRMs and their significance.
 
 % (a) network of interactions between top 10/100/300 ranked mutations 
 % (b) pairs of interacting residues involving SC-DRMs that are in contact 
@@ -54,42 +62,45 @@ run figure1.m
 % <https://github.com/ahmedaq/RocaSec>. 
 clear;
 clc;
-run figure2.m
-
-%% Fig. 3 SC-DRMs are enriched in NS3 drugs.
-% (a) list of NS3 drugs and the associated DRMs. check data/Drugs_mutants.mat
-% (b) statistical significance of the number of SC-DRMs associated with each drug.
-clear;
-clc;
 run figure3.m
 
-%% Fig. 4 SC-DRMs appear to directly impact binding of NS3 drugs.
+%% Fig. 4 Histogram of the change in energy observed by all single mutations X in 
+% the H77 strain carrying
+% (a) the D168E mutant and (b}) the Q80K mutant. 
+
+clear;
+clc;
+run figure4.m
+%% Fig. 5 SC-DRMs appear to directly impact binding of NS3 drugs.
 % (a) binding residues of drugs shown on the crystal structure of the NS3 protein-drug complexes
 % check data/*.pse file (* can be danoprevir/grazoprevir/telaprevir/vaniprevir)
 % (b-c) statistical significance of the number of (b) drug-specific DRMs/SC-DRMs and 
 % (c) all DRMs/SC-DRMs in binding residues of each of the four considered drugs.
 clear;
 clc;
-run figure4.m
+run figure5.m
 
-%% Fig. 5 Escape time of residues involved in NS3 DRMs.
+%% Fig. 6 Escape time of residues involved in NS3 DRMs.
 % (a) comparison between escape time of residues involved in SC-DRMs 
 % and the remaining residues involved in DRMs.
 % (b) individual escape time of residues involved in DRMs of the NS3 protein.
 clear;
 clc;
-run figure5.m
+run figure6.m
 
-%% Fig. 6 Correlation between the drug efficacy and the number of SC-DRMs associated with each drug.
+%% Fig. 7 Correlation between the drug efficacy and the number of SC-DRMs associated with each drug.
 % (a) NS3-specific DAAs and (b) multi-protein DAAs.
 clear;
 clc;
-run figure6.m
-
-%% Supp. Fig. 1 Statistical validation of the inferred HCV NS3
+run figure7.m
+%% Supp. Fig. 1 Robustness of the correlation observed between model energies
+% and experimental fitness values. Results are shown for the maximum-entropy model 
+% that considers epistatic interaction and 
+% for the conservation-only model that ignores epistasis.
 clear;
 clc;
 run suppfigure1.m
+
 
 %% Supp. Fig. 2 Top ranked pairs of mutations based on the strength of their couplings.
 clear;
@@ -105,3 +116,31 @@ run suppfigure3.m
 clear;
 clc;
 run suppfigure4.m
+%% Supp. Fig. 5 Comparison of statistical properties and model predictions 
+% based on complete data with those based on a subset of drug-naïve patients.
+% (a) Correlation of single mutant probabilities (left panel) and double mutant
+% probabilities (right panel) between sequences from all patients (7370 sequences) 
+% and the subset of drug-naïve patients (5877 sequences).
+% (b) Correlation between model predicted energies and experimental 
+% fitness measurements compiled from different studies.
+
+clear;
+clc;
+run suppfigure5.m
+%% Supp. Fig. 6 Correlation between the model predicted energies and 36 experimental 
+% fitness measurements that are associated with DRMs.
+
+clear;
+clc;
+run suppfigure6.m
+%% Supp. Fig. 7 Correlation between the model predicted energies and 36 experimental 
+% fitness measurements that are associated with DRMs.
+
+clear;
+clc;
+run suppfigure7.m
+
+%% Supp. Fig. 8 Statistical validation of the inferred HCV NS3
+clear;
+clc;
+run suppfigure8.m

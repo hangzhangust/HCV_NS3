@@ -1,229 +1,231 @@
-load('Drug_muants.mat')
-load('mean_escape_time_NS3.mat')
-% load('delatE_avg_pre_filter.mat')
-% Drugs_SVR = Drugs_SVR_multi;
-% f = fieldnames(Drugs_SVR_multi);
-%  for i = 1:length(f)
-%     Drugs_SVR.(f{i}) = Drugs_SVR_multi.(f{i});
-%  end
-deltaE = mean_escape_time_NS3_single;
+%%
 run startup.m
-load('Model_NS3.mat')
-names = fieldnames(Drugs_mut);
-names(ismember(names,'ciluprevir'))=[];
-names =names([6,5,7,3,9,8,2,1,4]);
-names = flip(names);
-data_drugs={};
-all_mut = [];
-for n =names'
-    mut = Drugs_pos.(n{1});
-    
-     all_mut = [all_mut;mut];
-     data_drugs = [data_drugs mut];
+load('Drug_mutants.mat')
+load('mean_escape_time_NS3.mat')
+% load('delatE_avg_min.mat')
+all_E_avg = mean_escape_time_NS3;
+load('RAS_single.mat', 'single_ras_site')
+load('Model_NS3.mat', 'conserved')
+single_ras_site = setdiff(single_ras_site, conserved);
+delta_E_RAS = all_E_avg(single_ras_site);
+[delta_E_RAS,I] = sort(delta_E_RAS,'ascend');
+names= {};
+for i = 1:length(single_ras_site)
+    names = [names;num2str(single_ras_site(i))];
 end
 
 
-e = [];
-tc = [36,41,54,55,71,80,122,168,170];
-% load('RAS_single.mat', 'single_ras_site')
-% tc = single_ras_site;
-for kk = 1:length(data_drugs)
-    p = length(intersect(data_drugs{kk},tc));
-    e = [e p];
-end
-% for kk = 1:length(data_drugs)
-%     p = intersect(data_drugs{kk},tc);
-%     e = [e max(mean_escape_time_NS3(p))];
-% end
-
-
-
-svr=[];
-std_svr = [];
-[~,ia,ib] = intersect(fieldnames(Drugs_SVR),names);
-names = names(ib);
-e = e(ib);
-for n =names'
-         d = Drugs_SVR.(n{1});
-         s = d(:,1);
-         weight = d(:,2);
-         std_svr = [std_svr; std(s,weight)]; 
-         svr =[svr;sum(s.*weight)/sum(weight)]; 
-%          svr =[svr;mean(s)]; 
-end
-set(0,'DefaultAxesFontName','Arial')
-set(0,'DefaultTextFontName','Arial')
-set(0,'DefaultAxesFontSize',8)
-set(0,'DefaultTextFontSize',8)
+names  =names(I);
+single_ras_site = single_ras_site(I);
 FIG=figure;
 
-P = lscov([e' ones(length(svr),1)],svr)
-% P = polyfit([Energy1 Energy2 Energy2b Energy3]',[FFU1 FFU2 FFU2b FFU3]',1);
-% P = polyfit([E1_norm; E2_norm ;E3_norm; E4_norm; E5_norm; E6_norm],...
-%     [I1_norm;I2_norm;I3_norm;I4_norm;I5_norm; I6_norm],1);
-x = 2:1:6; %xaxis
-y = P(1)*x+P(2);
-plot(x,y,'k--','LineWidth',1)
-hold on
-markersize=5;
-ylim([60 80])
-yticks([50:10:90])
-xlim([2 6])
-xticks([2:6])
-color=[0.6 0.6 0.6];
-[r,pval]=corr(e',svr,'type','spearman')
-mean_escape_time_E1E2 =e;
-mean_escape_time=svr';
-% arrayline_min = min([mean_escape_time_E1E2 mean_escape_time]);
-% arrayline_max = max([mean_escape_time_E1E2 mean_escape_time]);
-% arrayline = arrayline_min:0.01:arrayline_max;
-plot(mean_escape_time_E1E2,mean_escape_time,'o','MarkerEdgeColor',color,'MarkerFaceColor',color,'MarkerSize',markersize);hold;grid off;
-% plot(arrayline,arrayline,'k')
 
 hold on;
 
+% l = categorical({'1a','1b'});
+% l = reordercats(l,{'1a','1b'});
+% b = bar(l,[length(cum_fre_1a) length(cum_fre_1b)],0.2,'LineWidth',0.1,'BarWidth',1);
+% b.FaceColor = 'flat';
+% b.CData(1,:)=purple;
+% b.CData(2,:)=orange;
+% load('color_gradient.mat')
+names_compen = [36,41,54,55,71,80,122,168,170];
+% for i =1:length(names)
+% c = min(floor(delta_E_RAS(i)/200*size(gradient,1)),100);
+% bar(i,delta_E_RAS(i), 0.5, 'FaceColor',gradient(c,:),'LineWidth',0.2,'FaceAlpha',0.8);
 % 
-% err= errorbar(mean_escape_time_E1E2,mean_escape_time, std_svr, 'LineStyle','none');
+% hold on
 % 
-% err.Color = [0 0 0];
-% err.LineWidth = 0.5;
+% end
+for i =1:length(names)
+% c = min(floor(delta_E_RAS(i)/200*size(gradient,1)),100);
+% bar(i,delta_E_RAS(i), 0.5, 'FaceColor',gradient(c,:),'LineWidth',0.2,'FaceAlpha',0.8);
+if ismember(single_ras_site(i),names_compen )
+     b1 = bar(i,delta_E_RAS(i), 0.5, 'FaceColor',blue,'LineWidth',0.2,'FaceAlpha',0.6);
+else
+    b2 = bar(i,delta_E_RAS(i), 0.5, 'FaceColor',red,'LineWidth',0.2,'FaceAlpha',0.6);
+end
+hold on
+
+end
 
 
 
-FIG.Name = 'Escape_corr';
+% plot([0 length(names)+1],[100 100],'k--')
+xlim([0.5 length(names)+0.5])
+set(gca,'XTick',1:length(names),'XTickLabel',names);
 set(gca,'TickDir','out')
+FIG.Name = 'deltaE';
+% set(gca,'TickLength',[0.02, 0.01])
+% ylabel({'Escape time'})
+% legend('Subtype 1a', 'Subtype 1b','Location','best')
 FIG.Units = 'centimeters';
-FIG.Name = 'crr';
-set(gcf,'Position',[6.53 6.53 7.84 6]);
-box off
-% text(6.5,61,sprintf('r = %.2f',r),'FontSize',12)
-xlabel({'Number of SC-DRMs'})
-ylabel({'Sustained virological response rates (%)'})
-% set(gcf,'Position',[6.53 6.53 5.22 3.92]);
-set(gca,'Position',[.15 .2 .8 .74]);  %调整 XLABLE和YLABLE不会被切掉
+
+% xtickangle(45)
+set(gcf,'Position',[10 2  13 5]);
+set(gca,'Position',[.07 .17 .93 .8 ]);  %调整 XLABLE和YLABLE不会被切掉
+
+legendflex([b1,b2], {'SC-DRMs','Remaining DRMs'}, 'ref', gcf, ...
+                       'anchor', {'nw','nw'}, ...
+                       'buffer',[50 -10], ...
+                       'nrow',2, ...
+                       'fontsize',8,'box','off','xscale',0.5);
+
+% set(gca,'Position',[.22 .25 .88 .71]);  %调整 XLABLE和YLABLE不会被切掉
+% set(gcf,'Position',[10 10 7.84 6]);
+% set(gca,'Position',[.18 .17 .76 .74]);  %调整 XLABLE和YLABLE不会被切掉
+% ytickangle(45)
 figure_FontSize=8;
 set(get(gca,'XLabel'),'FontSize',figure_FontSize,'Vertical','top');
-set(gca,'TickDir','out')
-set(get(gca,'YLabel'),'FontSize',figure_FontSize,'Vertical','middle');
-set(get(gca,'YLabel'), 'Units', 'Normalized', 'Position', [-0.14, 0.5, 0]);
-set(get(gca,'XLabel'), 'Units', 'Normalized', 'Position', [0.5, -0.15, 0]);
+% set(gca,'TickDir','out')
+set(get(gca,'XLabel'),'FontSize',figure_FontSize,'Vertical','middle');
+set(get(gca,'YLabel'), 'Units', 'Normalized', 'Position', [-0.05, 0.5,0]);
 set(findobj('FontSize',10),'FontSize',figure_FontSize);
-% set(findobj(get(gca,'Children'),'LineWidth',0.5),'LineWidth',2);
-% print(['C:\Users\27909\Desktop\' FIG.Name],'-dpng','-r600');
-
+% ylim([0 17])
+% try print(['C:\Users\27909\Desktop\' FIG.Name],'-dpng','-r600'); catch      print(['C:\Users\hzhangbr\Desktop\' FIG.Name],'-dpng','-r600');     end
 %%
-load('mean_escape_time_NS3.mat')
-load('Drug_muants.mat')
-% load('deltaE_avg.mat')
-Drugs_SVR = Drugs_SVR_multi;
-% f = fieldnames(Drugs_SVR_multi);
-%  for i = 1:length(f)
-%     Drugs_SVR.(f{i}) = Drugs_SVR_multi.(f{i});
-%  end
-% deltaE = deltaE_avg;
-deltaE = mean_escape_time_NS3;
+
 run startup.m
+rng default
+
 load('Model_NS3.mat')
-names = fieldnames(Drugs_mut);
-names(ismember(names,'ciluprevir'))=[];
-names =names([6,5,7,3,9,8,2,1,4]);
-names = flip(names);
-% names(ismember(names,'simeprevir'))=[];
-% names(ismember(names,'danoprevir'))=[];
-% names(ismember(names,'grazoprevir'))=[];
-% names(ismember(names,'glecaprevir'))=[];
+load('RAS_single.mat')
+load('mean_escape_time_NS3.mat')
+deltaE = mean_escape_time_NS3;
+L=length(deltaE);
+all_E=mean_escape_time_NS3;
 
 
-data_drugs={};
-all_mut = {};
-for n =names'
-    mut = Drugs_pos.(n{1});
+load('Drug_mutants.mat')
+run startup.m
+load('RAS_single.mat', 'single_ras_site')
+load('Model_NS3.mat', 'conserved')
+single_ras_site = setdiff(single_ras_site, conserved);
+polymorphisms_associated_with_neutralization_resistance =[36,41,54,55,71,80,122,168,170];
 
-     
-     
-     data_drugs = [data_drugs; mut];
-end
+rest = setdiff(single_ras_site,polymorphisms_associated_with_neutralization_resistance);
+G = [zeros(1,length(polymorphisms_associated_with_neutralization_resistance)) ...
+    ones(1,length(rest))];
+data = [all_E(polymorphisms_associated_with_neutralization_resistance) ...
+    all_E(rest)];
 
-
-e = [];
-tc = [36,41,54,55,71,80,122,168,170];
-% load('RAS_single.mat', 'single_ras_site')
-% tc = single_ras_site;
-for kk = 1:length(data_drugs)
-    p = length(intersect(data_drugs{kk},tc));
-    e = [e p];
-end
-
-
-svr=[];
-[~,ia,ib] = intersect(fieldnames(Drugs_SVR),names);
-names = names(ib);
-e = e(ib);
-std_svr = [];
-for n =names'
-         d = Drugs_SVR.(n{1});
-         s = d(:,1);
-         weight = d(:,2);
-         svr =[svr;sum(s.*weight)/sum(weight)]; 
-         std_svr = [std_svr; std(s,weight)]; 
-%          svr =[svr;mean(s)]; 
-end
 set(0,'DefaultAxesFontName','Arial')
 set(0,'DefaultTextFontName','Arial')
 set(0,'DefaultAxesFontSize',8)
 set(0,'DefaultTextFontSize',8)
+L=363;
+box_lineWidth = 0.75;
+box_widths_value = 0.5;
+black = [0 0 0];
+box_color = [black;black];
+box_color_transparency = 0; %faceAlpha
+median_lineWidth = 0.75;
+median_color = 'k';
+whisker_value = 1.5;
+outlier_marker = '';
+outlier_markerSize = 3.5;
+outlier_marker_edgeWidth = 0.001;
+outlier_marker_edgeColor = 'w';
+outlier_jitter_value = 0;
+label_xaxis_data = {'SC-DRMs', sprintf('Remaining')};
+text_ylabel = 'Escape time';
+text_xlabel = '';
+text_title = '';%'E2-escape mutations [Keck2009],[Morin2012],[Bailey2015]';
+label_orientation_choice = 'horizontal'; %'horizontal'
+ylim_min = 0;
+ylim_max = 500;
+savefig = 0;
+savefig_name = 'escape_mutations';
+fig_width_cm = 4;
+fig_height_cm = 5;
 FIG=figure;
+set(gcf,'renderer','Painters')
+size_marker = 20;
+x1=0.8+0.4*(rand(length(polymorphisms_associated_with_neutralization_resistance),1));
+x2=1.8+0.4*(rand(length(rest),1));
+% f1=scatter(x1,all_E(polymorphisms_associated_with_neutralization_resistance) ,'o','MarkerEdgeColor','w','MarkerFaceColor',blue,'SizeData',size_marker,'LineWidth',0.01);f1.MarkerFaceAlpha = 0.6;hold on 
 
-P = lscov([e' ones(length(svr),1)],svr)
-% P = polyfit([Energy1 Energy2 Energy2b Energy3]',[FFU1 FFU2 FFU2b FFU3]',1);
-% P = polyfit([E1_norm; E2_norm ;E3_norm; E4_norm; E5_norm; E6_norm],...
-%     [I1_norm;I2_norm;I3_norm;I4_norm;I5_norm; I6_norm],1);
-x = 2:1:8; %xaxis
-y = P(1)*x+P(2);
-plot(x,y,'k--','LineWidth',1)
+
+dots = all_E(polymorphisms_associated_with_neutralization_resistance);
+nbins = 80;
+max_range = 0.8;
+center = 1;
+[x_data, y_data] = dot_boxplot(dots,nbins,center,max_range,1,50);
+% f1=scatter(x1,all_E(polymorphisms_associated_with_neutralization_resistance) ,'o','MarkerEdgeColor','w','MarkerFaceColor',blue,'SizeData',size_marker,'LineWidth',0.01);f1.MarkerFaceAlpha = 0.6;hold on 
+f1=scatter(x_data,y_data ,'o','MarkerEdgeColor','w','MarkerFaceColor',blue,'SizeData',size_marker,'LineWidth',0.01);f1.MarkerFaceAlpha = 0.6;hold on 
+
+dots = all_E(rest);
+nbins = 180;
+max_range = 2;
+center = 2;
+[x_data, y_data] = dot_boxplot(dots,nbins,center,max_range,1,59);
+% f2=scatter(x2,all_E(rest),'o','MarkerEdgeColor','w','MarkerFaceColor',red,'SizeData',size_marker,'LineWidth',0.01);f2.MarkerFaceAlpha = f1.MarkerFaceAlpha;hold on
+f2=scatter(x_data,y_data,'o','MarkerEdgeColor','w','MarkerFaceColor',red,'SizeData',size_marker,'LineWidth',0.01);f2.MarkerFaceAlpha = f1.MarkerFaceAlpha;hold on
 hold on
-markersize=5;
-ylim([90 100])
-yticks([85:5:100])
-ylim([85 100])
-% yticks([90:5:100])
-% xlim([50 200])
-color=[0.6 0.6 0.6];
-[r,pval]=corr(e',svr,'type','spearman')
-mean_escape_time_E1E2 =e;
-mean_escape_time=svr';
-% arrayline_min = min([mean_escape_time_E1E2 mean_escape_time]);
-% arrayline_max = max([mean_escape_time_E1E2 mean_escape_time]);
-% arrayline = arrayline_min:0.01:arrayline_max;
-plot(mean_escape_time_E1E2,mean_escape_time,'o','MarkerEdgeColor',color,'MarkerFaceColor',color,'MarkerSize',markersize);hold;grid off;
-% plot(arrayline,arrayline,'k')
-hold on
-% err= errorbar(mean_escape_time_E1E2,mean_escape_time, std_svr, 'LineStyle','none');
+figure_boxplot(data,G,...
+    box_lineWidth,box_widths_value,box_color,box_color_transparency,...
+    median_lineWidth,median_color,...
+    whisker_value,...
+    outlier_marker,outlier_markerSize,outlier_marker_edgeWidth,outlier_marker_edgeColor,outlier_jitter_value,...
+    label_xaxis_data,text_ylabel,text_xlabel,text_title,label_orientation_choice,...
+    ylim_min,ylim_max,...
+    savefig,savefig_name,fig_width_cm,fig_height_cm);
+hold on;
+
+
+% red = color_scheme_npg(1,:);
+% blue = color_scheme_npg(2,:);
+% V=violinplot(data, [repmat("Escape",1,length(polymorphisms_associated_with_neutralization_resistance)) repmat("Remaining",1,length(rest))],'EdgeColor' ,[0 0 0],'BoxColor' ,[0 0 0]);
+% SizeData=10;
+% ylabel('Escape time');
+% V(1, 1).ViolinColor = blue;
+% V(1, 2).ViolinColor = red;
+% V(1, 1).EdgeColor = 'None';
 % 
-% err.Color = [0 0 0];
-% err.LineWidth = 0.5;
+% V(1, 1).MedianPlot.SizeData  =SizeData+30;
+% V(1, 2).MedianPlot.SizeData  =SizeData+30;
+% V(1, 2).EdgeColor = 'None';
+% V(1, 1).ScatterPlot.SizeData  =SizeData;
+% V(1, 2).ScatterPlot.SizeData  =SizeData;
+% V(1, 1).BoxColor  = 'None';
+% V(1, 1).BoxColor  = 'None';
+set(gca,'YTick',0:75:300)
+yt = get(gca, 'YTick');
+axis([xlim    0  400])
+xt = get(gca, 'XTick');
+hold on
+plot(xt([1 2]), [1 1]*330, '-k','LineWidth',0.5)
+% plot(xt([1 1]), [0.95 1]*max(yt)*1.05, '-k','LineWidth',0.5)
+% plot(xt([2 2]), [0.95 1]*max(yt)*1.05, '-k','LineWidth',0.5)
+P = ranksum(all_E(rest),all_E(polymorphisms_associated_with_neutralization_resistance),'tail','right')
+P = ranksum(all_E(rest),all_E(polymorphisms_associated_with_neutralization_resistance))
+text('String','DRMs',...
+    'Position',[1.78823529411765 -68.2248677248677 0]);
+% text(0.824561403508772,-67.46842105263158,'RAS','FontSize',8);
+% ind = floor(log10(P));
+% P = roundn(P/10^ind,-1);
+% t = ['$$ P = ',num2str(P),' \times 10^{',num2str(ind),'} $$'];
+% plot(xt([1 2]), [1 1]*max(yt), '-k','LineWidth',0.5)
+% text(1,500,t,'interpreter','latex','FontSize',8)
+% text(1,max(yt)*1.15,'$$ P = 9.3 \times 10^{-20} $$','interpreter','latex','FontSize',8)
+% text(2,-100,'DRMs','FontSize',8,'FontName', 'Arial')
 
-FIG.Name = 'Escape_corr';
+set(gca,'TickLength',[0.02, 0.01])
+FIG.Name = 'Escape_mutation';
 set(gca,'TickDir','out')
 FIG.Units = 'centimeters';
-FIG.Name = 'multi';
-% xlim([4 9])
-set(gcf,'Position',[6.53 6.53 5 10]);
-box off
-text(6.5,61,sprintf('r = %.2f',r),'FontSize',12)
-set(gcf,'Position',[6.53 6.53 7.84 6]);
-box off
-% text(6.5,61,sprintf('r = %.2f',r),'FontSize',12)
-xlabel({'Number of SC-DRMs'})
-ylabel({'Sustained virological response rates (%)'})
+FIG.Name = 'Escape_compare';
 % set(gcf,'Position',[6.53 6.53 5.22 3.92]);
-set(gca,'Position',[.15 .2 .8 .74]);  %调整 XLABLE和YLABLE不会被切掉
-figure_FontSize=8;
-set(get(gca,'XLabel'),'FontSize',figure_FontSize,'Vertical','top');
-set(gca,'TickDir','out')
-set(get(gca,'YLabel'),'FontSize',figure_FontSize,'Vertical','middle');
-set(get(gca,'YLabel'), 'Units', 'Normalized', 'Position', [-0.14, 0.5, 0]);
-set(get(gca,'XLabel'), 'Units', 'Normalized', 'Position', [0.5, -0.15, 0]);
-set(findobj('FontSize',10),'FontSize',figure_FontSize);
+set(gcf,'Position',[10 2  5 5]);
+% set(gca,'Position',[.07 .17 .93 .8 ]);  %调整 XLABLE和YLABLE不会被切掉
+set(gca,'Position',[.25 .17 .72 .8]);  %µ÷Õû XLABLEºÍYLABLE²»»á±»ÇÐµô
+set(get(gca,'YLabel'), 'Units', 'Normalized', 'Position', [-0.235, 0.5, 0]);
 % set(findobj(get(gca,'Children'),'LineWidth',0.5),'LineWidth',2);
-% print(['C:\Users\27909\Desktop\' FIG.Name],'-dpng','-r600');
+% try print(['C:\Users\27909\Desktop\' FIG.Name],'-dpng','-r600'); catch      print(['C:\Users\hzhangbr\Desktop\' FIG.Name],'-dpng','-r600');     end
+% try print(['C:\Users\27909\Desktop\' FIG.Name],'-dpng','-r600'); catch      print(['C:\Users\hzhangbr\Desktop\' FIG.Name],'-dpdf');     end
+
+% set(findobj(get(gca,'Children'),'LineWidth',0.5),'LineWidth',1);
+% set(gca,'FontName','Arial','FontSize',8)
+
+
+% % export_fig C:\Users\27909\Desktop\Escape_mutation.png -native

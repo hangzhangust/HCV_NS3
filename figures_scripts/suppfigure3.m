@@ -2,23 +2,31 @@
 FIG=figure;
 load('ranking_couplings.mat')
 
-load('Drug_muants.mat')
+load('Drug_mutants.mat')
+load('Model_NS3.mat', 'conserved')
+
+
 names = fieldnames(Drugs_mut);
 names(ismember(names,'ciluprevir'))=[];
 names =names([6,5,7,3,9,8,2,1,4]);
 names = flip(names);
+
+for i = 1:length(names)
+    Drugs_pos.(names{i}) = setdiff(Drugs_pos.(names{i}),conserved);
+end
 p = zeros(1,300);
 
 for kk = 1:300
     all_p = zeros(length(names),1);
     strong_coupled = unique([ind_col_residue(1:kk); ind_row_residue(1:kk)]);
+    strong_coupled = setdiff(strong_coupled, conserved);
     for i = 1:length(names)
-        N=631;
+        N=515;
         n = length(strong_coupled);
         q = length(intersect(strong_coupled ,Drugs_pos.(names{i})));
         j = length(Drugs_pos.(names{i}));
         for k =q:min(j,n)  
-            all_p(i) = all_p(i)+(nchoosek(j,k)*nchoosek(631-j,n-k))/nchoosek(N,n);
+            all_p(i) = all_p(i)+(nchoosek(j,k)*nchoosek(515-j,n-k))/nchoosek(N,n);
         end
     end
     p(kk) = sum(all_p<=0.05);
@@ -59,11 +67,16 @@ set(gca,'TickLength',[0.035, 0.03])
 FIG=figure;
 load('ranking_couplings.mat')
 
-load('Drug_muants.mat')
+load('Drug_mutants.mat')
 names = fieldnames(Drugs_mut);
 names(ismember(names,'ciluprevir'))=[];
 names =names([6,5,7,3,9,8,2,1,4]);
 names = flip(names);
+for i = 1:length(names)
+    Drugs_pos.(names{i}) = setdiff(Drugs_pos.(names{i}),conserved);
+end
+
+
 p = zeros(1,300);
 for k = 1:300
     res = unique([ind_col_residue(1:k); ind_row_residue(1:k)]);
