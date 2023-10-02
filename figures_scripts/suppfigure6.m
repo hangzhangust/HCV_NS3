@@ -638,9 +638,4 @@ set(gca,'TickLength',[0.02, 0.03])
 set(findobj(get(gca,'Children'),'LineWidth',0.5),'LineWidth',2);
 
 end
-try 
-    print(['C:\Users\27909\Desktop\' FIG.Name],'-dpng','-r600'); 
 
-catch
-   print(['C:\Users\hzhangbr\Desktop\' FIG.Name],'-dpng','-r600');
-end

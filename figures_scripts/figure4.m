@@ -166,12 +166,6 @@ set(get(gca,'YLabel'), 'Units', 'Normalized', 'Position', [-0.14, 0.5, 0]);
 set(findobj('FontSize',8),'FontSize',figure_FontSize);
 set(gca,'TickLength',[0.02, 0.03])
 set(findobj(get(gca,'Children'),'LineWidth',0.5),'LineWidth',2);
-try 
-    print(['C:\Users\27909\Desktop\' FIG.Name],'-dpng','-r600'); 
-
-catch
-   
-end
 
 %%
 
@@ -208,9 +202,3 @@ set(get(gca,'YLabel'), 'Units', 'Normalized', 'Position', [-0.14, 0.5, 0]);
 set(findobj('FontSize',8),'FontSize',figure_FontSize);
 set(gca,'TickLength',[0.02, 0.03])
 set(findobj(get(gca,'Children'),'LineWidth',0.5),'LineWidth',2);
-try 
-    print(['C:\Users\27909\Desktop\' FIG.Name],'-dpng','-r600'); 
-
-catch
-   
-end
